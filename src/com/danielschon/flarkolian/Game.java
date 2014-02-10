@@ -120,10 +120,7 @@ public class Game implements GLSurfaceView.Renderer{
         
 		// Redraw background color
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // Set the camera position (View matrix)
-        Matrix.setLookAtM(viewMatrix, 0, 0, 0, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-        // Calculate the projection and view transformation
-        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+        
         // Draw sprites
         for (Sprite sprite : sprites)
         {
@@ -151,6 +148,10 @@ public class Game implements GLSurfaceView.Renderer{
 	    // this projection matrix is applied to object coordinates
 	    // in the onDrawFrame() method
 	    Matrix.frustumM(projectionMatrix, 0, 0, ratio * 1080, 0, 1080, 3, 7);
+	    // Set the camera position (View matrix)
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        // Calculate the projection and view transformation
+        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
 	}
 	

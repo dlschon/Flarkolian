@@ -24,7 +24,7 @@ public class Player extends Sprite
 	{
 		if (Game.pressState)
 		{
-			if (Game.press.getX() > Game.widthActual/8)
+			if (Game.press.getX() > Game.widthActual/2)
 			{
 				speed += acceleration;
 			}
