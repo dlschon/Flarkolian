@@ -142,6 +142,7 @@ public abstract class Sprite extends Entity
         //Set the sampler texture unit to the id of our desired texture
         glUniform1i(samplerLoc, this.bitmapId);
         
+        //Alpha blending
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
         

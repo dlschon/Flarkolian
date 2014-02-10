@@ -11,22 +11,22 @@ import static android.opengl.GLES20.*;
 public class Textures 
 {
 	//Used by OpenGL to store textures
-	private static int[] textures = new int[1];
+	private static int[] textures = new int[2];
 	//Used by this class to easily locate texture IDs
 	private static HashMap<BmpId, Integer> bitmaps = new HashMap<BmpId, Integer>();
 	
 	public static void createTextures(Context context)
 	{
-		int[] textures = new int[1];
 		glGenTextures(1, textures, 0);
-		create(context, BmpId.ICON, 0);
+		create(context, R.drawable.img00, BmpId.PLAYERSHIP, 0);
+		create(context, R.drawable.img10, BmpId.E10, 1);
 		
 	}
 	
-	private static void create(Context context, BmpId id, int index)
+	private static void create(Context context, int resource, BmpId id, int index)
 	{
 		//This is only temporary
-		Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
+		Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resource);
 				
 		// Bind texture to texturename
 		glActiveTexture(GL_TEXTURE0);
@@ -42,7 +42,7 @@ public class Textures
         // We are done using the bitmap so we should recycle it.
         bitmap.recycle();
         
-		bitmaps.put(BmpId.ICON, index);
+		bitmaps.put(id, index);
 	}
 	
 	public static int getBitmap(BmpId id)

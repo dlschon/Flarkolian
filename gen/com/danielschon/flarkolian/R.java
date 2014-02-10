@@ -22,6 +22,31 @@ public final class R {
     }
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;
+        public static final int img00=0x7f020001;
+        public static final int img10=0x7f020002;
+        public static final int img11=0x7f020003;
+        public static final int img12=0x7f020004;
+        public static final int img13=0x7f020005;
+        public static final int img20=0x7f020006;
+        public static final int img21=0x7f020007;
+        public static final int img22=0x7f020008;
+        public static final int img23=0x7f020009;
+        public static final int img30=0x7f02000a;
+        public static final int img31=0x7f02000b;
+        public static final int img32=0x7f02000c;
+        public static final int img33=0x7f02000d;
+        public static final int img40=0x7f02000e;
+        public static final int img41=0x7f02000f;
+        public static final int img42=0x7f020010;
+        public static final int img43=0x7f020011;
+        public static final int img50=0x7f020012;
+        public static final int img51=0x7f020013;
+        public static final int img60=0x7f020014;
+        public static final int img61=0x7f020015;
+        public static final int img62=0x7f020016;
+        public static final int img70=0x7f020017;
+        public static final int img71=0x7f020018;
+        public static final int img72=0x7f020019;
     }
     public static final class id {
         public static final int action_settings=0x7f080000;

@@ -12,7 +12,7 @@ public class Player extends Sprite
 	
 	public Player(int program, Vec2 position)
 	{
-		super(program, BmpId.ICON, position);
+		super(program, BmpId.PLAYERSHIP, position);
 		size = new Vec2(200, 200); 
 		this.translate();
 	}
@@ -22,7 +22,7 @@ public class Player extends Sprite
 	{
 		if (Game.pressState)
 		{
-			if (Game.press.getX() > Game.widthActual/2)
+			if (Game.press.getX() > Game.widthActual/8)
 			{
 				speed += acceleration;
 			}

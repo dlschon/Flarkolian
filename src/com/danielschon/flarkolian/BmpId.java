@@ -5,7 +5,9 @@ package com.danielschon.flarkolian;
  */
 public enum BmpId 
 {
-	ICON,
-	IDK,
-	WHATEVSDUDE
+	PLAYERSHIP,
+	E10,
+	E11,
+	E12,
+	E13
 }

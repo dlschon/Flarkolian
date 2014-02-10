@@ -74,7 +74,7 @@ public class Game implements GLSurfaceView.Renderer{
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) 
 	{
 		// Set the background frame color
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(.2f, .2f, .2f, 1.0f);
         
         //call getTime() to initialise Delta
         Time.getDelta();
@@ -91,21 +91,20 @@ public class Game implements GLSurfaceView.Renderer{
         
         Textures.createTextures(context);
         
-        player = new Player(program, new Vec2(100,100));
+        player = new Player(program, new Vec2(100,50));
         addSprite(player);
+        /*Player2 player2 = new Player2(program, new Vec2(100,500));
+        addSprite(player2);*/
         
 	}
 	
 	/**
-	 * The main game loop. Handles input, update, and drawing
+	 * The main game loop. Handles update and drawing
 	 */
 	@Override
 	public void onDrawFrame(GL10 gl) 
 	{
-		  /////////
-		 //INPUT//
-		/////////
-		
+
 		  //////////
 		 //UPDATE//
 		//////////
