@@ -22,7 +22,7 @@ public abstract class Sprite extends Entity
 	public Vec2 size = new Vec2(200, 200); 
 	public int angle = 0; 
 	
-	int bitmapId;
+	int sheet;
 	
     //Some buffers
 	private FloatBuffer vertexBuffer;
@@ -59,16 +59,26 @@ public abstract class Sprite extends Entity
     /**
      * bmpid is the enum indicating
      * @param program
-     * @param bmpid
+     * @param st
      */
-    public Sprite(int program, BmpId bmpid, Vec2 position) 
+    public Sprite(int program, SubTexture st, Vec2 position) 
     {
     	this.program = program;
     	this.loc = position;
     	this.translate();
     	
-    	//get bitmap
-    	bitmapId = Textures.getBitmap(bmpid);
+    	//get sprite sheet
+    	sheet = st.sheet;
+    	
+    	//set texCoords
+    	float isize = 1f / Textures.sheetsizes[st.sheet];	//The size (from 0f to 1f) of each image
+    	uvs = new float[] 
+    		    {
+    		    	st.texCoordX * isize, -(st.texCoordY * isize),	//top-left
+    		    	st.texCoordX * isize, -((st.texCoordY + 1) * isize), //bottom-left
+    		    	(st.texCoordX + 1) * isize, -((st.texCoordY + 1) * isize), //bottom-right
+    		    	(st.texCoordX + 1) * isize, -(st.texCoordY  * isize) //top-right
+    		    };
     	
     	// initialize vertex byte buffer for shape coordinates
         ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
@@ -98,7 +108,7 @@ public abstract class Sprite extends Entity
     }
 
 	@Override
-	public void update(int delta) 
+	public void update() 
 	{
 		translate();
 	}
@@ -140,7 +150,7 @@ public abstract class Sprite extends Entity
         int samplerLoc = GLES20.glGetUniformLocation (program, "s_texture" );
 	    
         //Set the sampler texture unit to the id of our desired texture
-        glUniform1i(samplerLoc, this.bitmapId);
+        glUniform1i(samplerLoc, this.sheet);
         
         //Alpha blending
         GLES20.glEnable(GLES20.GL_BLEND);

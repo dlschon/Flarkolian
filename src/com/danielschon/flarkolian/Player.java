@@ -10,15 +10,17 @@ public class Player extends Sprite
 	private float decceleration = 2f;
 	private float topSpeed = 30f;
 	
+	static SubTexture st = new SubTexture(0,0,0);
+	
 	public Player(int program, Vec2 position)
 	{
-		super(program, BmpId.PLAYERSHIP, position);
+		super(program, st, position);
 		size = new Vec2(200, 200); 
 		this.translate();
 	}
 	
 	@Override
-	public void update(int delta)
+	public void update()
 	{
 		if (Game.pressState)
 		{
@@ -68,6 +70,6 @@ public class Player extends Sprite
 			loc.x = Game.widthWindow - size.x;
 		}
 		
-		super.update(delta);
+		super.update();
 	}
 }

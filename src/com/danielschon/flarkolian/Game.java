@@ -75,10 +75,7 @@ public class Game implements GLSurfaceView.Renderer{
 	{
 		// Set the background frame color
         glClearColor(.2f, .2f, .2f, 1.0f);
-        
-        //call getTime() to initialise Delta
-        Time.getDelta();
-        
+       
         //Load shaders
     	int vertexShader = Game.loadShader(GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = Game.loadShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
@@ -93,13 +90,15 @@ public class Game implements GLSurfaceView.Renderer{
         
         player = new Player(program, new Vec2(100,50));
         addSprite(player);
-        /*Player2 player2 = new Player2(program, new Vec2(100,500));
-        addSprite(player2);*/
+        
+        //This only exists to test multitexturing 
+        Player2 player2 = new Player2(program, new Vec2(100,500));
+        addSprite(player2);
         
 	}
 	
 	/**
-	 * The main game loop. Handles update and drawing
+	 * The main game loop. Handles updating and drawing
 	 */
 	@Override
 	public void onDrawFrame(GL10 gl) 
@@ -108,14 +107,11 @@ public class Game implements GLSurfaceView.Renderer{
 		  //////////
 		 //UPDATE//
 		//////////
-		
-		//The number of milliseconds elapsed since last getDelta() call
-		int delta = Time.getDelta();
 
 		//Update entities
         for (Entity entity : entities)
         {
-        	entity.update(delta);
+        	entity.update();
         }
         
           ////////

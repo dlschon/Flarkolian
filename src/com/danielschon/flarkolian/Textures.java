@@ -12,24 +12,29 @@ public class Textures
 {
 	//Used by OpenGL to store textures
 	private static int[] textures = new int[2];
-	//Used by this class to easily locate texture IDs
-	private static HashMap<BmpId, Integer> bitmaps = new HashMap<BmpId, Integer>();
+	
+	//Number of images per row in each sheet
+	public static float[] sheetsizes = 
+		{
+			1f, 	//the player sheet
+			8f	//the enemies sheet
+		};
 	
 	public static void createTextures(Context context)
 	{
-		glGenTextures(1, textures, 0);
-		create(context, R.drawable.img00, BmpId.PLAYERSHIP, 0);
-		create(context, R.drawable.img10, BmpId.E10, 1);
+		glGenTextures(2, textures, 0);
+		create(context, R.drawable.player, 0, GL_TEXTURE0);
+		create(context, R.drawable.enemiess, 1, GL_TEXTURE1);
 		
 	}
 	
-	private static void create(Context context, int resource, BmpId id, int index)
+	private static void create(Context context, int resource, int index, int tex)
 	{
-		//This is only temporary
+		//This is only temporary 
 		Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resource);
-				
-		// Bind texture to texturename
-		glActiveTexture(GL_TEXTURE0);
+
+		// Bind texture to the array index
+		glActiveTexture(tex);
 		glBindTexture(GL_TEXTURE_2D, textures[index]);
 		 
 		// Set filtering (Used to resize image resolution)
@@ -42,11 +47,10 @@ public class Textures
         // We are done using the bitmap so we should recycle it.
         bitmap.recycle();
         
-		bitmaps.put(id, index);
 	}
 	
-	public static int getBitmap(BmpId id)
+	public static int getBitmap(SubTexture st)
 	{
-		return bitmaps.get(id);
+		return textures[st.sheet];
 	}
 }

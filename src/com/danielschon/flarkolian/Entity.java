@@ -5,5 +5,5 @@ package com.danielschon.flarkolian;
  */
 public abstract class Entity 
 {
-	public abstract void update(int delta);
+	public abstract void update();
 }
