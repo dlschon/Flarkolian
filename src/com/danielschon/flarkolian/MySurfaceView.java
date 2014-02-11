@@ -13,7 +13,7 @@ public class MySurfaceView extends GLSurfaceView implements SurfaceHolder.Callba
 	{
 		super(context);
 		setEGLContextClientVersion(2);
-		renderer = new Game(context);
+		renderer = new Game(context, this);
 		setRenderer(renderer);
 	}
 	

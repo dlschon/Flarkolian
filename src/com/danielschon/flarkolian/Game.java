@@ -63,23 +63,25 @@ public class Game implements GLSurfaceView.Renderer{
 	private float[] mvpMatrix = new float[16]; //Model View Projection, not Most Valuable Player
 
 	private Context context;
+	private GLSurfaceView sv;
 	
 	private int frameCount = 0;
 	private long lastTime = 0;
 	private long time = 0;
 	
-	public Game(Context context)
+	public Game(Context context, GLSurfaceView sv)
 	{
 		super();
 		this.context = context;
+		this.sv = sv;
 	}
-	
+
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) 
 	{
 		// Set the background frame color
         glClearColor(.2f, .2f, .2f, 1.0f);
-       
+
         //Load shaders
     	int vertexShader = Game.loadShader(GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = Game.loadShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
@@ -113,10 +115,16 @@ public class Game implements GLSurfaceView.Renderer{
 		time = System.currentTimeMillis();
 		if (time - lastTime >= 1000)
 		{
-			log("fps:", frameCount);
+			Log.i("fps:", String.valueOf(frameCount));
 			frameCount = 0;
 			lastTime = time;
 		}
+		
+		  /////////
+		 //INPUT//
+		/////////
+		
+		
 		
 		  //////////
 		 //UPDATE//
@@ -147,9 +155,9 @@ public class Game implements GLSurfaceView.Renderer{
 	public void onSurfaceChanged(GL10 gl, int width, int height) 
 	{
 		float ratio = (float)width/height;
-		log("width",width);
-		log("height",height);
-		log("ratio", ratio);
+		Log.i("width", String.valueOf(width));
+		Log.i("height", String.valueOf(height));
+		Log.i("ratio", String.valueOf(ratio));
 		
 		Game.widthActual = width;
 		Game.heightActual = height;
@@ -210,21 +218,11 @@ public class Game implements GLSurfaceView.Renderer{
 			pressState = true;
 			pressTime = System.currentTimeMillis();
 		}
-		if (e.getAction() == MotionEvent.ACTION_UP)
+		if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL)
 		{
 			pressState = false;
 			releaseTime = System.currentTimeMillis();
 		}
-	}
-	
-	public static void log(String m, String s)
-	{
-		Log.i(m,s);
-	}
-	
-	public static void log(String m, float f)
-	{
-		Log.i(m, String.valueOf(f));
 	}
 
 }
