@@ -16,7 +16,7 @@ public class Textures
 	//Number of images per row in each sheet
 	public static float[] sheetsizes = 
 		{
-			1f, 	//the player sheet
+			1f, //the player sheet
 			8f	//the enemies sheet
 		};
 	

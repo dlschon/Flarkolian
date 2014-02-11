@@ -22,12 +22,19 @@ public abstract class Sprite extends Entity
 	public Vec2 size = new Vec2(200, 200); 
 	public int angle = 0; 
 	
-	int sheet;
+	public SubTexture st;
+	public SubTexture[] stSequence;
 	
     //Some buffers
 	private FloatBuffer vertexBuffer;
 	private ShortBuffer drawListBuffer;
 	public FloatBuffer uvBuffer;
+	
+	//Animation info
+	public boolean isAnimated = false;
+	private int frameCount = 0;
+	private int currentFrame = 0;
+	public int animSpeed = 0;	//The number of frames it takes to change animation
 	
 	//the program
 	private int program;
@@ -59,16 +66,15 @@ public abstract class Sprite extends Entity
     /**
      * bmpid is the enum indicating
      * @param program
-     * @param st
+     * @param st 
      */
     public Sprite(int program, SubTexture st, Vec2 position) 
     {
     	this.program = program;
     	this.loc = position;
-    	this.translate();
     	
     	//get sprite sheet
-    	sheet = st.sheet;
+    	this.st = st;
     	
     	//set texCoords
     	float isize = 1f / Textures.sheetsizes[st.sheet];	//The size (from 0f to 1f) of each image
@@ -110,7 +116,21 @@ public abstract class Sprite extends Entity
 	@Override
 	public void update() 
 	{
-		translate();
+		if (isAnimated)
+		{
+			frameCount++;
+			if (frameCount >= animSpeed)
+			{
+				frameCount = 0;
+				currentFrame++;
+				if (currentFrame >= stSequence.length)
+				{
+					currentFrame = 0;
+				}
+				st = stSequence[currentFrame];
+			}
+		}
+		refresh();
 	}
 
 	public void draw(float[] mvpMatrix) 
@@ -150,7 +170,7 @@ public abstract class Sprite extends Entity
         int samplerLoc = GLES20.glGetUniformLocation (program, "s_texture" );
 	    
         //Set the sampler texture unit to the id of our desired texture
-        glUniform1i(samplerLoc, this.sheet);
+        glUniform1i(samplerLoc, st.sheet);
         
         //Alpha blending
         GLES20.glEnable(GLES20.GL_BLEND);
@@ -167,8 +187,25 @@ public abstract class Sprite extends Entity
 	/**
 	 * Called to recalculate the sprite's position
 	 */
-	public void translate()
+	public void refresh()
     {
+    	//set texCoords
+    	float isize = 1f / Textures.sheetsizes[st.sheet];	//The size (from 0f to 1f) of each image
+    	uvs = new float[] 
+    		    {
+    		    	st.texCoordX * isize, -(st.texCoordY * isize),	//top-left
+    		    	st.texCoordX * isize, -((st.texCoordY + 1) * isize), //bottom-left
+    		    	(st.texCoordX + 1) * isize, -((st.texCoordY + 1) * isize), //bottom-right
+    		    	(st.texCoordX + 1) * isize, -(st.texCoordY  * isize) //top-right
+    		    };
+    	
+    	// The texture buffer
+    	ByteBuffer bb = ByteBuffer.allocateDirect(uvs.length * 4);
+        bb.order(ByteOrder.nativeOrder());
+        uvBuffer = bb.asFloatBuffer();
+        uvBuffer.put(uvs);
+        uvBuffer.position(0);
+    	
 		vertexCoords = new float[]
 			    {   	// in counterclockwise order:
 			            loc.x, loc.y, 0.0f, 		// top-left
@@ -176,8 +213,9 @@ public abstract class Sprite extends Entity
 			            loc.x + size.x, loc.y + size.y, 0.0f, 		// bottom-right
 			            loc.x + size.x, loc.y, 0.0f 			// top-right
 			    };
+		
         // The vertex buffer.
-        ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
+        bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
         vertexBuffer.put(vertexCoords);

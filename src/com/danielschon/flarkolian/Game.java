@@ -64,6 +64,10 @@ public class Game implements GLSurfaceView.Renderer{
 
 	private Context context;
 	
+	private int frameCount = 0;
+	private long lastTime = 0;
+	private long time = 0;
+	
 	public Game(Context context)
 	{
 		super();
@@ -104,6 +108,16 @@ public class Game implements GLSurfaceView.Renderer{
 	public void onDrawFrame(GL10 gl) 
 	{
 
+		//fps check
+		frameCount++;
+		time = System.currentTimeMillis();
+		if (time - lastTime >= 1000)
+		{
+			log("fps:", frameCount);
+			frameCount = 0;
+			lastTime = time;
+		}
+		
 		  //////////
 		 //UPDATE//
 		//////////
