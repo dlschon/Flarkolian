@@ -24,7 +24,7 @@ public class Textures
 	{
 		glGenTextures(2, textures, 0);
 		create(context, R.drawable.player, 0, GL_TEXTURE0);
-		create(context, R.drawable.enemiess, 1, GL_TEXTURE1);
+		create(context, R.drawable.enemies, 1, GL_TEXTURE1);
 		
 	}
 	

@@ -12,7 +12,7 @@ public class Player extends Sprite
 
 	public Player(int program, Vec2 position)
 	{
-		super(program, new SubTexture(0,0,0), position);
+		super(program, position);
 		st = new SubTexture(0,0,0);
 		size = new Vec2(200, 200); 
 		this.refresh();

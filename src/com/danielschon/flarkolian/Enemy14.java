@@ -1,15 +1,13 @@
 package com.danielschon.flarkolian;
 
-import android.util.Log;
-
-public class Player2 extends Sprite
+/**
+ * The 4th enemy of the 1st tier
+ */
+public class Enemy14 extends Enemy
 {
-	
-	private float speed = 20f;
-	
-	public Player2(int program, Vec2 position)
+	public Enemy14(int program, Vec2 position) 
 	{
-		super(program, new SubTexture(1,4,6), position);
+		super(program, position);
 		st = new SubTexture(1,4,6);
 		stSequence = 
 		new SubTexture[]	
@@ -25,23 +23,25 @@ public class Player2 extends Sprite
 		size = new Vec2(200, 200); 
 		this.isAnimated = true;
 		this.animSpeed = 5;
+		this.speed.x = 20;
 		this.refresh();
 	}
 	
 	@Override
 	public void update()
 	{
-		loc.x += speed;
+		loc.x += speed.x;
 		if (loc.x > Game.widthWindow - size.x)
 		{
-			speed *= -1;
+			speed.x *= -1;
 			loc.x = Game.widthWindow - size.x;
 		}
 		if (loc.x < 0)
 		{
-			speed *= -1;
+			speed.x *= -1;
 			loc.x = 0;
 		}
 		super.update();
 	}
+
 }

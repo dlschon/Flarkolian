@@ -98,7 +98,7 @@ public class Game implements GLSurfaceView.Renderer{
         addSprite(player);
         
         //This only exists to test multitexturing 
-        Player2 player2 = new Player2(program, new Vec2(100,500));
+        Enemy player2 = new Enemy14(program, new Vec2(100,500));
         addSprite(player2);
         
 	}

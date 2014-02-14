@@ -64,42 +64,14 @@ public abstract class Sprite extends Entity
     int vertexStride = COORDS_PER_VERTEX * 4;                //4 are how many bytes in a float
     
     /**
-     * bmpid is the enum indicating
+     * Subclasses must call .refresh() at the end of their constructors
      * @param program
      * @param st 
      */
-    public Sprite(int program, SubTexture st, Vec2 position) 
+    public Sprite(int program, Vec2 position) 
     {
     	this.program = program;
     	this.loc = position;
-    	
-    	//get sprite sheet
-    	this.st = st;
-    	
-    	//set texCoords
-    	float isize = 1f / Textures.sheetsizes[st.sheet];	//The size (from 0f to 1f) of each image
-    	uvs = new float[] 
-    		    {
-    		    	st.texCoordX * isize, -(st.texCoordY * isize),	//top-left
-    		    	st.texCoordX * isize, -((st.texCoordY + 1) * isize), //bottom-left
-    		    	(st.texCoordX + 1) * isize, -((st.texCoordY + 1) * isize), //bottom-right
-    		    	(st.texCoordX + 1) * isize, -(st.texCoordY  * isize) //top-right
-    		    };
-    	
-    	// initialize vertex byte buffer for shape coordinates
-        ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        vertexBuffer = bb.asFloatBuffer();
-        vertexBuffer.put(vertexCoords);
-        vertexBuffer.position(0);
-        
-        // The texture buffer
-        bb = ByteBuffer.allocateDirect(uvs.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        uvBuffer = bb.asFloatBuffer();
-        uvBuffer.put(uvs);
-        uvBuffer.position(0);
-
         
         // initialize byte buffer for the draw list
         ByteBuffer dlb = ByteBuffer.allocateDirect(
@@ -109,7 +81,6 @@ public abstract class Sprite extends Entity
         drawListBuffer = dlb.asShortBuffer();
         drawListBuffer.put(drawOrder);
         drawListBuffer.position(0);
-        
         
     }
 
@@ -185,7 +156,7 @@ public abstract class Sprite extends Entity
 	}
 	
 	/**
-	 * Called to recalculate the sprite's position
+	 * Called to update the buffers to match new information
 	 */
 	public void refresh()
     {
