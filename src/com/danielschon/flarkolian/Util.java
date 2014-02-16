@@ -17,7 +17,7 @@ public class Util
 			return(0);
 		}
 		Random r = new Random();
-		return r.nextInt(max - min) + min;
+		return r.nextInt(max - min + 1) + min;
 	}
 	
 	public static float randFloat(float min, float max)

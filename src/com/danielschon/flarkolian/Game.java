@@ -11,6 +11,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import static android.opengl.GLES20.*;
 import android.content.Context;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
@@ -55,7 +56,7 @@ public class Game implements GLSurfaceView.Renderer{
 	public static long releaseTime;
 	public static MotionEvent press;
 	
-	private PriorityQueue<Sprite> sprites = new PriorityQueue<Sprite>(1, depthComparator);
+	private ArrayList<Sprite> sprites = new ArrayList<Sprite>();
 	private ArrayList<Entity> entities = new ArrayList<Entity>();
 	
 	private Player player;
@@ -65,7 +66,6 @@ public class Game implements GLSurfaceView.Renderer{
 	private float[] mvpMatrix = new float[16]; //Model View Projection, not Most Valuable Player
 
 	private Context context;
-	private GLSurfaceView sv;
 	
 	private int frameCount = 0;
 	private long lastTime = 0;
@@ -75,14 +75,13 @@ public class Game implements GLSurfaceView.Renderer{
 	{
 		super();
 		this.context = context;
-		this.sv = sv;
 	}
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) 
 	{
 		// Set the background frame color
-        glClearColor(0f, 1f, 1f, 1.0f);
+        glClearColor(.2f, .2f, .2f, 1.0f);
 
         //Load shaders
     	int vertexShader = Game.loadShader(GL_VERTEX_SHADER, vertexShaderCode);
@@ -96,14 +95,24 @@ public class Game implements GLSurfaceView.Renderer{
         
         Textures.createTextures(context);
         
+        //Alpha blending
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+        
+        // Add program to OpenGL ES environment
+	    glUseProgram(program);
+	    
+        for (int i = 0; i <= 50; i++)
+        {
+        	addSprite(new Star(new Vec2(Util.randInt(0, widthWindow), Util.randInt(0, heightWindow))));
+        }
+        
         player = new Player(new Vec2(100,50));
         addSprite(player);
         
         Enemy enemy = new Enemy14(new Vec2(100,500));
         addSprite(enemy);
         
-        Star s1 = new Star(new Vec2(500,500));
-        addSprite(s1);
         
         
 	}
@@ -223,15 +232,5 @@ public class Game implements GLSurfaceView.Renderer{
 			releaseTime = System.currentTimeMillis();
 		}
 	}
-	
-	//Comparator anonymous class
-	public static Comparator<Sprite> depthComparator = new Comparator<Sprite>()
-	{
-		
-		@Override
-		public int compare(Sprite s1, Sprite s2) {
-	          return (int) (s1.depth - s2.depth);
-	    }
-	};
 
 }

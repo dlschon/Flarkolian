@@ -106,8 +106,7 @@ public abstract class Sprite extends Entity
 
 	public void draw(float[] mvpMatrix) 
 	{
-		// Add program to OpenGL ES environment
-	    glUseProgram(Game.program);
+		
 
 	    // get handle to vertex shader's vPosition member
 	    int mPositionHandle = glGetAttribLocation(Game.program, "vPosition");
@@ -142,10 +141,6 @@ public abstract class Sprite extends Entity
 	    
         //Set the sampler texture unit to the id of our desired texture
         glUniform1i(samplerLoc, st.sheet);
-        
-        //Alpha blending
-        GLES20.glEnable(GLES20.GL_BLEND);
-        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
         
 	    // Draw the square
 	    glDrawElements(GL_TRIANGLES, drawOrder.length, GL_UNSIGNED_SHORT, drawListBuffer);
