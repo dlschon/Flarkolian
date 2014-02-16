@@ -3,6 +3,7 @@ package com.danielschon.flarkolian;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -101,22 +102,26 @@ public class Game implements GLSurfaceView.Renderer{
         
         // Add program to OpenGL ES environment
 	    glUseProgram(program);
-	    
+	       
+        //Add the player
+        player = new Player(new Vec2(100,50));
+        addSprite(player);
+        
+        //Add an enemy
+        Enemy enemy = new Enemy14(new Vec2(100,500));
+        addSprite(enemy);
+        
+        //Add 50 stars
         for (int i = 0; i <= 50; i++)
         {
         	addSprite(new Star(new Vec2(Util.randInt(0, widthWindow), Util.randInt(0, heightWindow))));
         }
         
-        player = new Player(new Vec2(100,50));
-        addSprite(player);
-        
-        Enemy enemy = new Enemy14(new Vec2(100,500));
-        addSprite(enemy);
-        
-        
+        //Sort the sprites
+        depthSort();
         
 	}
-	
+
 	/**
 	 * The main game loop. Handles updating and drawing
 	 */
@@ -218,6 +223,14 @@ public class Game implements GLSurfaceView.Renderer{
 		entities.add(e);
 	}
 	
+	/**
+	 * Sorts the sprites arraylist such that lower depth sprites are rendered first
+	 */
+	private void depthSort() 
+	{
+		Collections.sort(sprites, new DepthComparator());
+	}
+	
 	public void processTouchEvent(MotionEvent e) 
 	{
 		press = e;
@@ -231,6 +244,16 @@ public class Game implements GLSurfaceView.Renderer{
 			pressState = false;
 			releaseTime = System.currentTimeMillis();
 		}
+	}
+	
+	class DepthComparator implements Comparator<Sprite>
+	{
+		@Override
+		public int compare(Sprite arg0, Sprite arg1) 
+		{
+			return (arg0.depth < arg1.depth) ? -1 : (arg0.depth > arg1.depth) ? 1 : 0;
+		}
+		
 	}
 
 }
