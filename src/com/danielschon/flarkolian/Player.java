@@ -10,11 +10,12 @@ public class Player extends Sprite
 	private float decceleration = 2f;
 	private float topSpeed = 30f;
 
-	public Player(int program, Vec2 position)
+	public Player(Vec2 position)
 	{
-		super(program, position);
+		super(position);
 		st = new SubTexture(0,0,0);
 		size = new Vec2(200, 200); 
+		depth = 1;
 		this.refresh();
 	}
 	

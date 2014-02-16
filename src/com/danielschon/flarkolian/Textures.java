@@ -11,20 +11,22 @@ import static android.opengl.GLES20.*;
 public class Textures 
 {
 	//Used by OpenGL to store textures
-	private static int[] textures = new int[2];
+	private static int[] textures = new int[3];
 	
 	//Number of images per row in each sheet
-	public static float[] sheetsizes = 
+	public static int[] sheetsizes = 
 		{
-			1f, //the player sheet
-			8f	//the enemies sheet
+			1,	//the player sheet
+			8,	//the enemies sheet
+			4	//the misc sheet
 		};
 	
 	public static void createTextures(Context context)
 	{
-		glGenTextures(2, textures, 0);
+		glGenTextures(3, textures, 0);
 		create(context, R.drawable.player, 0, GL_TEXTURE0);
 		create(context, R.drawable.enemies, 1, GL_TEXTURE1);
+		create(context, R.drawable.misc, 2, GL_TEXTURE2);
 		
 	}
 	

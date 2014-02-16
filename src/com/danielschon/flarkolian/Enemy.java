@@ -11,8 +11,9 @@ public abstract class Enemy extends Sprite
 	
 	protected Vec2 speed = new Vec2(0,0);
 	
-	public Enemy(int program, Vec2 position)
+	public Enemy(Vec2 position)
 	{
-		super(program, position);
+		super(position);
+		depth = 1;
 	}
 }

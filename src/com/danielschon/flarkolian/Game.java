@@ -3,6 +3,8 @@ package com.danielschon.flarkolian;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -36,8 +38,8 @@ public class Game implements GLSurfaceView.Renderer{
 		      "  gl_FragColor = texture2D( s_texture, v_texCoord );" +
 			  "}";
 
-	    //OpenGL ES program
-	    public int program;
+	//OpenGL ES program
+	public static int program;
 	    
 	//Dimensions of the actual screen
 	public static int widthActual = 1920;
@@ -53,7 +55,7 @@ public class Game implements GLSurfaceView.Renderer{
 	public static long releaseTime;
 	public static MotionEvent press;
 	
-	private ArrayList<Sprite> sprites = new ArrayList<Sprite>();
+	private PriorityQueue<Sprite> sprites = new PriorityQueue<Sprite>(1, depthComparator);
 	private ArrayList<Entity> entities = new ArrayList<Entity>();
 	
 	private Player player;
@@ -80,7 +82,7 @@ public class Game implements GLSurfaceView.Renderer{
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) 
 	{
 		// Set the background frame color
-        glClearColor(.2f, .2f, .2f, 1.0f);
+        glClearColor(0f, 1f, 1f, 1.0f);
 
         //Load shaders
     	int vertexShader = Game.loadShader(GL_VERTEX_SHADER, vertexShaderCode);
@@ -94,12 +96,15 @@ public class Game implements GLSurfaceView.Renderer{
         
         Textures.createTextures(context);
         
-        player = new Player(program, new Vec2(100,50));
+        player = new Player(new Vec2(100,50));
         addSprite(player);
         
-        //This only exists to test multitexturing 
-        Enemy player2 = new Enemy14(program, new Vec2(100,500));
-        addSprite(player2);
+        Enemy enemy = new Enemy14(new Vec2(100,500));
+        addSprite(enemy);
+        
+        Star s1 = new Star(new Vec2(500,500));
+        addSprite(s1);
+        
         
 	}
 	
@@ -119,12 +124,6 @@ public class Game implements GLSurfaceView.Renderer{
 			frameCount = 0;
 			lastTime = time;
 		}
-		
-		  /////////
-		 //INPUT//
-		/////////
-		
-		
 		
 		  //////////
 		 //UPDATE//
@@ -224,5 +223,15 @@ public class Game implements GLSurfaceView.Renderer{
 			releaseTime = System.currentTimeMillis();
 		}
 	}
+	
+	//Comparator anonymous class
+	public static Comparator<Sprite> depthComparator = new Comparator<Sprite>()
+	{
+		
+		@Override
+		public int compare(Sprite s1, Sprite s2) {
+	          return (int) (s1.depth - s2.depth);
+	    }
+	};
 
 }

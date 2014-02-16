@@ -5,20 +5,20 @@ package com.danielschon.flarkolian;
  */
 public class Enemy14 extends Enemy
 {
-	public Enemy14(int program, Vec2 position) 
+	public Enemy14(Vec2 position) 
 	{
-		super(program, position);
-		st = new SubTexture(1,4,6);
+		super(position);
+		st = new SubTexture(1,4,5);
 		stSequence = 
 		new SubTexture[]	
 			{
-				new SubTexture(1,4,6),
-				new SubTexture(1,5,6),
-				new SubTexture(1,6,6),
-				new SubTexture(1,7,6),
-				new SubTexture(1,0,5),
-				new SubTexture(1,1,5),
-				new SubTexture(1,2,5)
+				new SubTexture(1,4,5),
+				new SubTexture(1,5,5),
+				new SubTexture(1,6,5),
+				new SubTexture(1,7,5),
+				new SubTexture(1,0,4),
+				new SubTexture(1,1,4),
+				new SubTexture(1,2,4)
 			};
 		size = new Vec2(200, 200); 
 		this.isAnimated = true;

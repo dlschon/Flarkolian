@@ -4,10 +4,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-
-import android.graphics.Bitmap;
 import android.opengl.GLES20;
-import android.renderscript.Program;
+import android.util.Log;
 
 import static android.opengl.GLES20.*;
 
@@ -20,8 +18,7 @@ public abstract class Sprite extends Entity
     //Basic sprite information
 	public Vec2 loc = new Vec2(0, 0);
 	public Vec2 size = new Vec2(200, 200); 
-	public int angle = 0; 
-	
+	public int depth = 0;	//Sprites with a lesser depth are drawn first and thus behind others
 	public SubTexture st;
 	public SubTexture[] stSequence;
 	
@@ -35,9 +32,6 @@ public abstract class Sprite extends Entity
 	private int frameCount = 0;
 	private int currentFrame = 0;
 	public int animSpeed = 0;	//The number of frames it takes to change animation
-	
-	//the program
-	private int program;
 	
     //number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
@@ -68,9 +62,8 @@ public abstract class Sprite extends Entity
      * @param program
      * @param st 
      */
-    public Sprite(int program, Vec2 position) 
+    public Sprite(Vec2 position) 
     {
-    	this.program = program;
     	this.loc = position;
         
         // initialize byte buffer for the draw list
@@ -89,16 +82,23 @@ public abstract class Sprite extends Entity
 	{
 		if (isAnimated)
 		{
-			frameCount++;
-			if (frameCount >= animSpeed)
+			if (stSequence == null)
 			{
-				frameCount = 0;
-				currentFrame++;
-				if (currentFrame >= stSequence.length)
+				Log.e("Animation", "stSequence must not be null if isAnimated is true");
+			}
+			else
+			{
+				frameCount++;
+				if (frameCount >= animSpeed)
 				{
-					currentFrame = 0;
+					frameCount = 0;
+					currentFrame++;
+					if (currentFrame >= stSequence.length)
+					{
+						currentFrame = 0;
+					}
+					st = stSequence[currentFrame];
 				}
-				st = stSequence[currentFrame];
 			}
 		}
 		refresh();
@@ -107,10 +107,10 @@ public abstract class Sprite extends Entity
 	public void draw(float[] mvpMatrix) 
 	{
 		// Add program to OpenGL ES environment
-	    glUseProgram(program);
+	    glUseProgram(Game.program);
 
 	    // get handle to vertex shader's vPosition member
-	    int mPositionHandle = glGetAttribLocation(program, "vPosition");
+	    int mPositionHandle = glGetAttribLocation(Game.program, "vPosition");
 
 	    // Enable a handle to the triangle vertices
 	    glEnableVertexAttribArray(mPositionHandle);
@@ -121,7 +121,7 @@ public abstract class Sprite extends Entity
 	                                 vertexStride, vertexBuffer);
 	    
 	    // Get handle to texture coordinates location
-        int texCoordLoc = GLES20.glGetAttribLocation(program, "a_texCoord" );
+        int texCoordLoc = GLES20.glGetAttribLocation(Game.program, "a_texCoord" );
         
         // Enable generic vertex attribute array
         glEnableVertexAttribArray(texCoordLoc);
@@ -132,13 +132,13 @@ public abstract class Sprite extends Entity
                0, uvBuffer);
 	
 	    // get handle to shape's transformation matrix
-	    int mvpMatrixHandle = glGetUniformLocation(program, "uMVPMatrix");
+	    int mvpMatrixHandle = glGetUniformLocation(Game.program, "uMVPMatrix");
 
 	    // Pass the projection and view transformation to the shader
 	    glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
 	    
 	    // Get handle to textures locations
-        int samplerLoc = GLES20.glGetUniformLocation (program, "s_texture" );
+        int samplerLoc = GLES20.glGetUniformLocation (Game.program, "s_texture" );
 	    
         //Set the sampler texture unit to the id of our desired texture
         glUniform1i(samplerLoc, st.sheet);
@@ -162,12 +162,13 @@ public abstract class Sprite extends Entity
     {
     	//set texCoords
     	float isize = 1f / Textures.sheetsizes[st.sheet];	//The size (from 0f to 1f) of each image
+    	float padding = isize / 64f;	//1 pixel off each size to avoid graphical errors
     	uvs = new float[] 
     		    {
-    		    	st.texCoordX * isize, -(st.texCoordY * isize),	//top-left
-    		    	st.texCoordX * isize, -((st.texCoordY + 1) * isize), //bottom-left
-    		    	(st.texCoordX + 1) * isize, -((st.texCoordY + 1) * isize), //bottom-right
-    		    	(st.texCoordX + 1) * isize, -(st.texCoordY  * isize) //top-right
+    		    	st.texCoordX * isize + padding, -(st.texCoordY * isize + padding),	//top-left
+    		    	st.texCoordX * isize + padding, -((st.texCoordY + 1) * isize - padding), //bottom-left
+    		    	(st.texCoordX + 1) * isize - padding, -((st.texCoordY + 1) * isize - padding), //bottom-right
+    		    	(st.texCoordX + 1) * isize - padding, -(st.texCoordY  * isize + padding) //top-right
     		    };
     	
     	// The texture buffer
