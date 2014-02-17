@@ -43,6 +43,7 @@ public abstract class Sprite extends Entity
             loc.x + size.x, loc.y, 0.0f 			// top-right
     };
     
+    //Texcoords
     float[] uvs = new float[] 
     {
     	0.0f, 0.0f,	//top-left
@@ -75,6 +76,15 @@ public abstract class Sprite extends Entity
         drawListBuffer.put(drawOrder);
         drawListBuffer.position(0);
         
+        // The vertex buffer.
+        ByteBuffer vb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
+        vb.order(ByteOrder.nativeOrder());
+        vertexBuffer = vb.asFloatBuffer();
+        
+        // The texture buffer
+    	ByteBuffer bb = ByteBuffer.allocateDirect(uvs.length * 4);
+    	bb.order(ByteOrder.nativeOrder());
+    	uvBuffer = bb.asFloatBuffer();
     }
 
 	@Override
@@ -166,10 +176,7 @@ public abstract class Sprite extends Entity
     		    	(st.x + 1) * isize - padding, -(st.y  * isize + padding) //top-right
     		    };
     	
-    	// The texture buffer
-    	ByteBuffer bb = ByteBuffer.allocateDirect(uvs.length * 4);
-    	bb.order(ByteOrder.nativeOrder());
-    	uvBuffer = bb.asFloatBuffer();
+    	uvBuffer.position(0);
     	uvBuffer.put(uvs);
     	uvBuffer.position(0);
 		
@@ -181,10 +188,7 @@ public abstract class Sprite extends Entity
 			            loc.x + size.x, loc.y, 0.0f 			// top-right
 			    };
 		
-        // The vertex buffer.
-        ByteBuffer vb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
-        vb.order(ByteOrder.nativeOrder());
-        vertexBuffer = vb.asFloatBuffer();
+        vertexBuffer.position(0);
         vertexBuffer.put(vertexCoords);
         vertexBuffer.position(0);
     }

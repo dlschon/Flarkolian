@@ -112,7 +112,7 @@ public class Game implements GLSurfaceView.Renderer{
         addSprite(enemy);
         
         //Add 50 stars
-        for (int i = 0; i <= 50; i++)
+        for (int i = 0; i < 30; i++)
         {
         	addSprite(new Star(new Vec2(Util.randInt(0, widthWindow), Util.randInt(0, heightWindow))));
         }
