@@ -7,13 +7,22 @@ package com.danielschon.flarkolian;
 public class SubTexture 
 {
 	public int sheet;
-	public float texCoordX;
-	public float texCoordY;
+	public int x;
+	public int y;
 	
-	public SubTexture(int sheet, float x, float y)
+	public SubTexture(int sheet, int x, int y)
 	{
 		this.sheet = sheet;
-		this.texCoordX = x;
-		this.texCoordY = y;
+		this.x = x;
+		this.y = y;
+	}
+	
+	/**
+	 * returns true if the coordinates of the given SubTexture match this one's
+	 * @return isEqual
+	 */
+	public boolean equals(SubTexture st)
+	{
+		return (st.sheet == sheet && st.x == x && st.y ==y);
 	}
 }

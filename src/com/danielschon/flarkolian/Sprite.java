@@ -114,22 +114,22 @@ public abstract class Sprite extends Entity
 	    // Enable a handle to the triangle vertices
 	    glEnableVertexAttribArray(mPositionHandle);
 
-	    // Prepare the triangle coordinate data
+	    // Prepare the vertex coordinate data
 	    glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
 	                                 GL_FLOAT, false,
 	                                 vertexStride, vertexBuffer);
 	    
-	    // Get handle to texture coordinates location
-        int texCoordLoc = GLES20.glGetAttribLocation(Game.program, "a_texCoord" );
-        
-        // Enable generic vertex attribute array
-        glEnableVertexAttribArray(texCoordLoc);
- 
+        // Get handle to texture coordinates location
+        int texCoordLoc = glGetAttribLocation(Game.program, "a_texCoord" );
+
         // Prepare the texturecoordinates
-        GLES20.glVertexAttribPointer( texCoordLoc, 2, 
+      	GLES20.glVertexAttribPointer( texCoordLoc, 2, 
         		GL_FLOAT, false,
-               0, uvBuffer);
-	
+        		0, uvBuffer);
+
+  		// Enable generic vertex attribute array
+  		glEnableVertexAttribArray(texCoordLoc);
+  		
 	    // get handle to shape's transformation matrix
 	    int mvpMatrixHandle = glGetUniformLocation(Game.program, "uMVPMatrix");
 
@@ -137,7 +137,7 @@ public abstract class Sprite extends Entity
 	    glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
 	    
 	    // Get handle to textures locations
-        int samplerLoc = GLES20.glGetUniformLocation (Game.program, "s_texture" );
+        int samplerLoc = glGetUniformLocation (Game.program, "s_texture" );
 	    
         //Set the sampler texture unit to the id of our desired texture
         glUniform1i(samplerLoc, st.sheet);
@@ -145,9 +145,9 @@ public abstract class Sprite extends Entity
 	    // Draw the square
 	    glDrawElements(GL_TRIANGLES, drawOrder.length, GL_UNSIGNED_SHORT, drawListBuffer);
 
-	    // Disable vertex array
+	    // Disable vertex arrays
 	    glDisableVertexAttribArray(mPositionHandle);
-	    GLES20.glDisableVertexAttribArray(texCoordLoc);
+	    glDisableVertexAttribArray(texCoordLoc);
 	}
 	
 	/**
@@ -155,24 +155,24 @@ public abstract class Sprite extends Entity
 	 */
 	public void refresh()
     {
-    	//set texCoords
-    	float isize = 1f / Textures.sheetsizes[st.sheet];	//The size (from 0f to 1f) of each image
-    	float padding = isize / 64f;	//1 pixel off each size to avoid graphical errors
+		//set texCoords
+		float isize = 1f / Textures.sheetsizes[st.sheet];	//The size (from 0f to 1f) of each image
+		float padding = isize / 64f;	//1 pixel off each size to avoid graphical errors
     	uvs = new float[] 
     		    {
-    		    	st.texCoordX * isize + padding, -(st.texCoordY * isize + padding),	//top-left
-    		    	st.texCoordX * isize + padding, -((st.texCoordY + 1) * isize - padding), //bottom-left
-    		    	(st.texCoordX + 1) * isize - padding, -((st.texCoordY + 1) * isize - padding), //bottom-right
-    		    	(st.texCoordX + 1) * isize - padding, -(st.texCoordY  * isize + padding) //top-right
+    		    	st.x * isize + padding, -(st.y * isize + padding),	//top-left
+    		    	st.x * isize + padding, -((st.y + 1) * isize - padding), //bottom-left
+    		    	(st.x + 1) * isize - padding, -((st.y + 1) * isize - padding), //bottom-right
+    		    	(st.x + 1) * isize - padding, -(st.y  * isize + padding) //top-right
     		    };
     	
     	// The texture buffer
     	ByteBuffer bb = ByteBuffer.allocateDirect(uvs.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        uvBuffer = bb.asFloatBuffer();
-        uvBuffer.put(uvs);
-        uvBuffer.position(0);
-    	
+    	bb.order(ByteOrder.nativeOrder());
+    	uvBuffer = bb.asFloatBuffer();
+    	uvBuffer.put(uvs);
+    	uvBuffer.position(0);
+		
 		vertexCoords = new float[]
 			    {   	// in counterclockwise order:
 			            loc.x, loc.y, 0.0f, 		// top-left
@@ -182,9 +182,9 @@ public abstract class Sprite extends Entity
 			    };
 		
         // The vertex buffer.
-        bb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        vertexBuffer = bb.asFloatBuffer();
+        ByteBuffer vb = ByteBuffer.allocateDirect(vertexCoords.length * 4);
+        vb.order(ByteOrder.nativeOrder());
+        vertexBuffer = vb.asFloatBuffer();
         vertexBuffer.put(vertexCoords);
         vertexBuffer.position(0);
     }

@@ -119,7 +119,6 @@ public class Game implements GLSurfaceView.Renderer{
         
         //Sort the sprites
         depthSort();
-        
 	}
 
 	/**
@@ -246,12 +245,15 @@ public class Game implements GLSurfaceView.Renderer{
 		}
 	}
 	
+	/**
+	 * Comparator to sort sprites by depth and subtexture
+	 */
 	class DepthComparator implements Comparator<Sprite>
 	{
 		@Override
 		public int compare(Sprite arg0, Sprite arg1) 
 		{
-			return (arg0.depth < arg1.depth) ? -1 : (arg0.depth > arg1.depth) ? 1 : 0;
+			return (arg0.depth < arg1.depth) ? -1 : (arg0.depth > arg1.depth) ? 1 : arg0.equals(arg1) ? 0 : -1;
 		}
 		
 	}

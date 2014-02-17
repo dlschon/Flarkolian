@@ -26,9 +26,9 @@ public class Star extends Sprite
 			//Recycle as new and different star
 			loc.y = Game.heightWindow;
 			loc.x = Util.randInt(0, Game.widthWindow);
-			speed = size.x / 10f;
 			size.x = Util.randFloat(50, 100);
 			size.y = size.x;
+			speed = size.x / 10f;
 		}
 		super.update();
 		
