@@ -14,6 +14,7 @@ public class Star extends Sprite
 		size.x = Util.randFloat(50, 100);
 		size.y = size.x;
 		speed = size.x / 10f;
+		depth = (int)size.x -100;
 		refresh();
 	}
 	
@@ -29,6 +30,7 @@ public class Star extends Sprite
 			size.x = Util.randFloat(50, 100);
 			size.y = size.x;
 			speed = size.x / 10f;
+			depth = (int)size.x -100;
 		}
 		super.update();
 		

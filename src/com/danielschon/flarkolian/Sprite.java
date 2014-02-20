@@ -176,7 +176,6 @@ public abstract class Sprite extends Entity
     		    	(st.x + 1) * isize - padding, -(st.y  * isize + padding) //top-right
     		    };
     	
-    	uvBuffer.position(0);
     	uvBuffer.put(uvs);
     	uvBuffer.position(0);
 		
@@ -188,7 +187,6 @@ public abstract class Sprite extends Entity
 			            loc.x + size.x, loc.y, 0.0f 			// top-right
 			    };
 		
-        vertexBuffer.position(0);
         vertexBuffer.put(vertexCoords);
         vertexBuffer.position(0);
     }

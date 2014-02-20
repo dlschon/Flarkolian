@@ -68,9 +68,7 @@ public class Game implements GLSurfaceView.Renderer{
 
 	private Context context;
 	
-	private int frameCount = 0;
-	private long lastTime = 0;
-	private long time = 0;
+	
 	
 	public Game(Context context, GLSurfaceView sv)
 	{
@@ -103,6 +101,9 @@ public class Game implements GLSurfaceView.Renderer{
         // Add program to OpenGL ES environment
 	    glUseProgram(program);
 	       
+	    //Add the fpslogger
+	    addEntity(new FPSLogger());
+	    
         //Add the player
         player = new Player(new Vec2(100,50));
         addSprite(player);
@@ -111,7 +112,7 @@ public class Game implements GLSurfaceView.Renderer{
         Enemy enemy = new Enemy14(new Vec2(100,500));
         addSprite(enemy);
         
-        //Add 50 stars
+        //Add 30 stars
         for (int i = 0; i < 30; i++)
         {
         	addSprite(new Star(new Vec2(Util.randInt(0, widthWindow), Util.randInt(0, heightWindow))));
@@ -127,16 +128,6 @@ public class Game implements GLSurfaceView.Renderer{
 	@Override
 	public void onDrawFrame(GL10 gl) 
 	{
-
-		//fps check
-		frameCount++;
-		time = System.currentTimeMillis();
-		if (time - lastTime >= 1000)
-		{
-			Log.i("fps:", String.valueOf(frameCount));
-			frameCount = 0;
-			lastTime = time;
-		}
 		
 		  //////////
 		 //UPDATE//
