@@ -2,6 +2,8 @@ package com.danielschon.flarkolian;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
@@ -20,7 +22,8 @@ public class MySurfaceView extends GLSurfaceView implements SurfaceHolder.Callba
 	@Override
 	public boolean onTouchEvent(MotionEvent e) 
 	{
-	        renderer.processTouchEvent(e);
-	        return true;
+		renderer.processTouchEvent(e);
+		return true;
 	}
+	
 }

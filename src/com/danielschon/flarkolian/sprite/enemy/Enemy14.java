@@ -1,4 +1,9 @@
-package com.danielschon.flarkolian;
+package com.danielschon.flarkolian.sprite.enemy;
+
+import com.danielschon.flarkolian.Game;
+import com.danielschon.flarkolian.SubTexture;
+import com.danielschon.flarkolian.Vec2;
+import com.danielschon.flarkolian.sprite.Enemy;
 
 /**
  * The 4th enemy of the 1st tier

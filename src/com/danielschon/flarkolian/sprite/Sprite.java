@@ -1,9 +1,16 @@
-package com.danielschon.flarkolian;
+package com.danielschon.flarkolian.sprite;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+
+import com.danielschon.flarkolian.Entity;
+import com.danielschon.flarkolian.Game;
+import com.danielschon.flarkolian.SubTexture;
+import com.danielschon.flarkolian.Textures;
+import com.danielschon.flarkolian.Vec2;
+
 import android.opengl.GLES20;
 import android.util.Log;
 
@@ -32,6 +39,9 @@ public abstract class Sprite extends Entity
 	private int frameCount = 0;
 	private int currentFrame = 0;
 	public int animSpeed = 0;	//The number of frames it takes to change animation
+	
+	//Other info
+	public boolean visible = true;
 	
     //number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
@@ -116,48 +126,49 @@ public abstract class Sprite extends Entity
 
 	public void draw(float[] mvpMatrix) 
 	{
-		
+		if (visible)
+		{
+			// get handle to vertex shader's vPosition member
+			int mPositionHandle = glGetAttribLocation(Game.program, "vPosition");
 
-	    // get handle to vertex shader's vPosition member
-	    int mPositionHandle = glGetAttribLocation(Game.program, "vPosition");
+	    	// Enable a handle to the triangle vertices
+	    	glEnableVertexAttribArray(mPositionHandle);
 
-	    // Enable a handle to the triangle vertices
-	    glEnableVertexAttribArray(mPositionHandle);
-
-	    // Prepare the vertex coordinate data
-	    glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
+	    	// Prepare the vertex coordinate data
+	    	glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
 	                                 GL_FLOAT, false,
 	                                 vertexStride, vertexBuffer);
 	    
-        // Get handle to texture coordinates location
-        int texCoordLoc = glGetAttribLocation(Game.program, "a_texCoord" );
+        	// Get handle to texture coordinates location
+        	int texCoordLoc = glGetAttribLocation(Game.program, "a_texCoord" );
 
-        // Prepare the texturecoordinates
-      	GLES20.glVertexAttribPointer( texCoordLoc, 2, 
+        	// Prepare the texturecoordinates
+      		GLES20.glVertexAttribPointer( texCoordLoc, 2, 
         		GL_FLOAT, false,
         		0, uvBuffer);
 
-  		// Enable generic vertex attribute array
-  		glEnableVertexAttribArray(texCoordLoc);
+  			// Enable generic vertex attribute array
+  			glEnableVertexAttribArray(texCoordLoc);
   		
-	    // get handle to shape's transformation matrix
-	    int mvpMatrixHandle = glGetUniformLocation(Game.program, "uMVPMatrix");
+  			// get handle to shape's transformation matrix
+  			int mvpMatrixHandle = glGetUniformLocation(Game.program, "uMVPMatrix");
 
-	    // Pass the projection and view transformation to the shader
-	    glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
+	    	// Pass the projection and view transformation to the shader
+	    	glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
 	    
-	    // Get handle to textures locations
-        int samplerLoc = glGetUniformLocation (Game.program, "s_texture" );
+	    	// Get handle to textures locations
+        	int samplerLoc = glGetUniformLocation (Game.program, "s_texture" );
 	    
-        //Set the sampler texture unit to the id of our desired texture
-        glUniform1i(samplerLoc, st.sheet);
+        	//Set the sampler texture unit to the id of our desired texture
+        	glUniform1i(samplerLoc, st.sheet);
         
-	    // Draw the square
-	    glDrawElements(GL_TRIANGLES, drawOrder.length, GL_UNSIGNED_SHORT, drawListBuffer);
+        	// Draw the square
+	    	glDrawElements(GL_TRIANGLES, drawOrder.length, GL_UNSIGNED_SHORT, drawListBuffer);
 
-	    // Disable vertex arrays
-	    glDisableVertexAttribArray(mPositionHandle);
-	    glDisableVertexAttribArray(texCoordLoc);
+	    	// Disable vertex arrays
+	    	glDisableVertexAttribArray(mPositionHandle);
+	    	glDisableVertexAttribArray(texCoordLoc);
+		}
 	}
 	
 	/**

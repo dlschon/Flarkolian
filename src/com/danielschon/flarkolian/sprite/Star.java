@@ -1,4 +1,9 @@
-package com.danielschon.flarkolian;
+package com.danielschon.flarkolian.sprite;
+
+import com.danielschon.flarkolian.Game;
+import com.danielschon.flarkolian.SubTexture;
+import com.danielschon.flarkolian.Util;
+import com.danielschon.flarkolian.Vec2;
 
 public class Star extends Sprite
 {

@@ -18,7 +18,7 @@
         <activity
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:screenOrientation="sensorLandscape"
-            android:name="com.danielschon.flarkolian.MainActivity"
+            android:name="com.danielschon.flarkolian.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

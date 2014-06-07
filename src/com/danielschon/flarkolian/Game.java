@@ -2,23 +2,47 @@ package com.danielschon.flarkolian;
 
 
 
+import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+import static android.opengl.GLES20.GL_DEPTH_BUFFER_BIT;
+import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
+import static android.opengl.GLES20.GL_VERTEX_SHADER;
+import static android.opengl.GLES20.glAttachShader;
+import static android.opengl.GLES20.glClear;
+import static android.opengl.GLES20.glClearColor;
+import static android.opengl.GLES20.glCompileShader;
+import static android.opengl.GLES20.glCreateProgram;
+import static android.opengl.GLES20.glCreateShader;
+import static android.opengl.GLES20.glLinkProgram;
+import static android.opengl.GLES20.glShaderSource;
+import static android.opengl.GLES20.glUseProgram;
+import static android.opengl.GLES20.glViewport;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static android.opengl.GLES20.*;
 import android.content.Context;
+import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
 import android.view.MotionEvent;
 
-public class Game implements GLSurfaceView.Renderer{
+import com.danielschon.flarkolian.activity.MainActivity;
+import com.danielschon.flarkolian.group.Group;
+import com.danielschon.flarkolian.group.StarGroup;
+import com.danielschon.flarkolian.group.TitleGroup;
+import com.danielschon.flarkolian.sprite.Player;
+import com.danielschon.flarkolian.sprite.Sprite;
+
+public class Game implements GLSurfaceView.Renderer
+{
 
 	// some fancy shaders
 		public final static String vertexShaderCode =
@@ -40,6 +64,9 @@ public class Game implements GLSurfaceView.Renderer{
 		      "  gl_FragColor = texture2D( s_texture, v_texCoord );" +
 			  "}";
 
+	//Singleton instance
+	public static Game instance;	
+	
 	//OpenGL ES program
 	public static int program;
 	    
@@ -68,19 +95,31 @@ public class Game implements GLSurfaceView.Renderer{
 
 	private Context context;
 	
+	//Background color
+	private int clearColor = 0x515151;
 	
+	//Used to add entities and sprites in the main loop, to avoid concurrent modification
+	Queue<Entity> addLaterE = new LinkedList<Entity>();
+	Queue<Sprite> addLaterS = new LinkedList<Sprite>();
+	
+	Queue<Entity> removeLater = new LinkedList<Entity>();
+	
+	//Groups
+	StarGroup starGroup;
+	TitleGroup titleGroup;
 	
 	public Game(Context context, GLSurfaceView sv)
 	{
 		super();
 		this.context = context;
+		instance = this;
 	}
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) 
 	{
 		// Set the background frame color
-        glClearColor(.2f, .2f, .2f, 1.0f);
+        glClearColor((float) Color.red(clearColor) / 255f, (float) Color.blue(clearColor) / 255f, (float) Color.green(clearColor) / 255f, 1f);
 
         //Load shaders
     	int vertexShader = Game.loadShader(GL_VERTEX_SHADER, vertexShaderCode);
@@ -103,80 +142,132 @@ public class Game implements GLSurfaceView.Renderer{
 	       
 	    //Add the fpslogger
 	    addEntity(new FPSLogger());
-	    
-        //Add the player
-        player = new Player(new Vec2(100,50));
-        addSprite(player);
         
-        //Add an enemy
+        /*//Add an enemy
         Enemy enemy = new Enemy14(new Vec2(100,500));
-        addSprite(enemy);
+        addSprite(enemy);*/
+	    
+	    titleGroup = new TitleGroup(this, new TitleCallback(){
+
+	    	//Called when the user chooses to begin the game
+			@Override
+			public void onBegin(Game game) 
+			{
+				game.begin();
+			}
+			
+	    });
+	    titleGroup.deploy();
+	  
+	    starGroup = new StarGroup(this);
+	    starGroup.deploy();
         
-        //Add 30 stars
-        for (int i = 0; i < 30; i++)
-        {
-        	addSprite(new Star(new Vec2(Util.randInt(0, widthWindow), Util.randInt(0, heightWindow))));
-        }
-        
-        //Sort the sprites
-        depthSort();
 	}
 
 	/**
-	 * The main game loop. Handles updating and drawing
+	 * Called when the user chooses to begin the game
+	 */
+	protected void begin() 
+	{
+		titleGroup.destroy();
+		player = new Player(true);
+		this.addEntity(player);
+	}
+
+	/**
+	 * The main game loop. Handles adding/removing, updating, and drawing
 	 */
 	@Override
 	public void onDrawFrame(GL10 gl) 
 	{
-		
-		  //////////
-		 //UPDATE//
-		//////////
+		if (!((MainActivity) context).paused)
+		{
+			boolean spritesChanged = false;
+			//Add and remove sprites and entities
+			if (addLaterE.size() > 0)
+			{
+				while (addLaterE.size() > 0)
+				{
+					Entity e = addLaterE.poll();
+					//Add entity to list of entities
+					entities.add(e);
+					//Also add it to a list of Sprites if it's a sprite
+					if (e instanceof Sprite)
+					{
+						sprites.add((Sprite) e);
+						spritesChanged = true;
+					}
+				}	
+			}
+			
+			if (removeLater.size() > 0)
+			{
+				while (removeLater.size() > 0)
+				{
+					Entity e = removeLater.poll();
+					if (entities.contains(e))
+						entities.remove(e);
+					if (sprites.contains(e))
+					{
+						spritesChanged = true;
+						sprites.remove(e);
+					}
+				}
+			}
+			if (spritesChanged)
+				this.depthSort();
+        
+			  //////////
+			 //UPDATE//
+			//////////
 
-		//Update entities
-        for (Entity entity : entities)
-        {
-        	entity.update();
-        }
+			//Update entities
+			for (Entity entity : entities)
+			{
+				entity.update();
+			}
         
-          ////////
-         //DRAW//
-        ////////
+			  ////////
+			 //DRAW//
+			////////
         
-		// Redraw background color
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-        // Draw sprites
-        for (Sprite sprite : sprites)
-        {
-        	sprite.draw(mvpMatrix);
-        }
-        
+			// Redraw background color
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			// Draw sprites
+			for (Sprite sprite : sprites)
+			{
+				sprite.draw(mvpMatrix);
+			}
+		}
 	}
 
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) 
 	{
-		float ratio = (float)width/height;
-		Log.i("width", String.valueOf(width));
-		Log.i("height", String.valueOf(height));
-		Log.i("ratio", String.valueOf(ratio));
+		if (!((MainActivity) context).paused)
+		{
+			float ratio = (float)width/height;
+			Log.i("width", String.valueOf(width));
+			Log.i("height", String.valueOf(height));
+			Log.i("ratio", String.valueOf(ratio));
 		
-		Game.widthActual = width;
-		Game.heightActual = height;
+			Game.widthActual = width;
+			Game.heightActual = height;
 		
-		Game.widthWindow = (int) (ratio * 1080);
-		Game.heightWindow = 1080;
-		
-		glViewport(0, 0, Game.widthActual, Game.heightActual);
+			Game.widthWindow = (int) (ratio * 1080);
+			Game.heightWindow = 1080;
+			
+			glViewport(0, 0, Game.widthActual, Game.heightActual);
 
-	    // this projection matrix is applied to object coordinates
-	    // in the onDrawFrame() method
-	    Matrix.frustumM(projectionMatrix, 0, 0, ratio * 1080, 0, 1080, 3, 7);
-	    // Set the camera position (View matrix)
-        Matrix.setLookAtM(viewMatrix, 0, 0, 0, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-        // Calculate the projection and view transformation
-        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+			// this projection matrix is applied to object coordinates
+			// in the onDrawFrame() method
+			Matrix.frustumM(projectionMatrix, 0, 0, ratio * 1080, 0, 1080, 3, 7);
+			// Set the camera position (View matrix)
+			Matrix.setLookAtM(viewMatrix, 0, 0, 0, 3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+			// Calculate the projection and view transformation
+			Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+		}
 
 	}
 	
@@ -193,25 +284,24 @@ public class Game implements GLSurfaceView.Renderer{
 
 	    return shader;
 	}
-
-	/**
-	 * Add a sprite to both the sprites and entities lists
-	 * @param s
-	 */
-	public void addSprite(Sprite s)
-	{
-		sprites.add(s);
-		entities.add(s);
-	}
 	
 	/**
-	 * Add an entity to the entities list
+	 * Queues up an entity to be added to the list
 	 * @param s
 	 */
 	public void addEntity(Entity e)
 	{
-		entities.add(e);
-	}
+		addLaterE.add(e);
+	}	
+	
+	/**
+	 * Queues up an entity to be removed from the list
+	 * @param s
+	 */
+	public void removeEntity(Entity e)
+	{
+		removeLater.add(e);
+	}	
 	
 	/**
 	 * Sorts the sprites arraylist such that lower depth sprites are rendered first
@@ -221,6 +311,10 @@ public class Game implements GLSurfaceView.Renderer{
 		Collections.sort(sprites, new DepthComparator());
 	}
 	
+	/**
+	 * Handles touch events sent from MySurfaceView
+	 * @param e
+	 */
 	public void processTouchEvent(MotionEvent e) 
 	{
 		press = e;

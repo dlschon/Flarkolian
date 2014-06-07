@@ -1,4 +1,6 @@
-package com.danielschon.flarkolian;
+package com.danielschon.flarkolian.sprite;
+
+import com.danielschon.flarkolian.Vec2;
 
 import android.util.Log;
 
