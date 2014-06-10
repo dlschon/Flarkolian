@@ -35,9 +35,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import com.danielschon.flarkolian.activity.MainActivity;
-import com.danielschon.flarkolian.group.Group;
+import com.danielschon.flarkolian.group.InGameGUIGroup;
+import com.danielschon.flarkolian.group.PlayerGroup;
 import com.danielschon.flarkolian.group.StarGroup;
 import com.danielschon.flarkolian.group.TitleGroup;
+import com.danielschon.flarkolian.sprite.ExhaustParticle;
+import com.danielschon.flarkolian.sprite.Keypad;
 import com.danielschon.flarkolian.sprite.Player;
 import com.danielschon.flarkolian.sprite.Sprite;
 
@@ -107,6 +110,12 @@ public class Game implements GLSurfaceView.Renderer
 	//Groups
 	StarGroup starGroup;
 	TitleGroup titleGroup;
+	InGameGUIGroup inGameGUIGroup;
+	PlayerGroup playerGroup;
+	
+	public Keypad keypad = null;
+	
+	public int[] starRange = {0,1920};
 	
 	public Game(Context context, GLSurfaceView sv)
 	{
@@ -126,10 +135,10 @@ public class Game implements GLSurfaceView.Renderer
         int fragmentShader = Game.loadShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
 
         //Create program
-        program = glCreateProgram();         // create empty OpenGL ES Program
-        glAttachShader(program, vertexShader);   // add the vertex shader to program
-        glAttachShader(program, fragmentShader); // add the fragment shader to program
-        glLinkProgram(program);    // creates OpenGL ES program executables
+        program = glCreateProgram();         		// create empty OpenGL ES Program
+        glAttachShader(program, vertexShader);   	// add the vertex shader to program
+        glAttachShader(program, fragmentShader); 	// add the fragment shader to program
+        glLinkProgram(program);   					// creates OpenGL ES program executables
         
         Textures.createTextures(context);
         
@@ -142,10 +151,6 @@ public class Game implements GLSurfaceView.Renderer
 	       
 	    //Add the fpslogger
 	    addEntity(new FPSLogger());
-        
-        /*//Add an enemy
-        Enemy enemy = new Enemy14(new Vec2(100,500));
-        addSprite(enemy);*/
 	    
 	    titleGroup = new TitleGroup(this, new TitleCallback(){
 
@@ -159,6 +164,7 @@ public class Game implements GLSurfaceView.Renderer
 	    });
 	    titleGroup.deploy();
 	  
+	    starRange = new int[] {0, Game.widthWindow};
 	    starGroup = new StarGroup(this);
 	    starGroup.deploy();
         
@@ -170,8 +176,17 @@ public class Game implements GLSurfaceView.Renderer
 	protected void begin() 
 	{
 		titleGroup.destroy();
-		player = new Player(true);
-		this.addEntity(player);
+		
+		playerGroup = new PlayerGroup(this);
+		playerGroup.deploy();
+		
+		inGameGUIGroup = new InGameGUIGroup(this);
+		inGameGUIGroup.deploy();
+		
+		starRange = new int[] {0, (int) (Game.widthWindow * .75)};
+		
+		keypad = inGameGUIGroup.getKeypad();
+		player = playerGroup.getPlayer();
 	}
 
 	/**

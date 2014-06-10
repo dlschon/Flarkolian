@@ -2,8 +2,6 @@ package com.danielschon.flarkolian;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 

@@ -2,8 +2,6 @@ package com.danielschon.flarkolian.sprite;
 
 import com.danielschon.flarkolian.Vec2;
 
-import android.util.Log;
-
 /**
  * The things that you shoot
  *

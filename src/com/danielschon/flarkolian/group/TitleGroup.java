@@ -20,8 +20,8 @@ public class TitleGroup extends Group
 	@Override
 	public void initContents()
 	{
-		this.add(new Title(this, new Vec2(0, game.heightWindow - game.widthActual/4)));
-		this.add(new Gear(new Vec2(game.widthWindow-256, 0)));
+		this.add(new Title(this, new Vec2(0, Game.heightWindow - Game.widthActual/4)));
+		this.add(new Gear(new Vec2(Game.widthWindow-256, 0)));
 		this.add(new BlinkyDrawString(new Vec2(0,0), new Vec2(128,128), "TAP TO START"));
 		
 		

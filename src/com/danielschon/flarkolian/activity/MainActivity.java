@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
 
 public class MainActivity extends Activity {
 

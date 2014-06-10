@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import com.danielschon.flarkolian.Entity;
 import com.danielschon.flarkolian.Game;
-import com.danielschon.flarkolian.sprite.Sprite;
 
 public class Group 
 {

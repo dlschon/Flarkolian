@@ -1,6 +1,5 @@
 package com.danielschon.flarkolian.sprite;
 
-import com.danielschon.flarkolian.Game;
 import com.danielschon.flarkolian.SubTexture;
 import com.danielschon.flarkolian.Vec2;
 

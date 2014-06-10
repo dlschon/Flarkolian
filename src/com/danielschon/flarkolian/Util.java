@@ -9,14 +9,16 @@ import android.util.Log;
  */
 public class Util 
 {
+	static Random r = new Random();
+	
 	public static int randInt(int min, int max)
 	{
 		if (max < min)
 		{
-			Log.e("random error", "Max cannot be greater than min, idiot!");
+			Log.e("random error", "Max cannot be less than min, idiot!");
 			return(0);
 		}
-		Random r = new Random();
+		
 		return r.nextInt(max - min + 1) + min;
 	}
 	
@@ -24,10 +26,10 @@ public class Util
 	{
 		if (max < min)
 		{
-			Log.e("random error", "Max cannot be greater than min, idiot!");
+			Log.e("random error", "Max cannot be less than min, idiot!");
 			return(0);
 		}
-		Random r = new Random();
+		
 		return r.nextFloat() * (max - min) + min;
 	}
 }

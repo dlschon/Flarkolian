@@ -12,6 +12,7 @@ import com.danielschon.flarkolian.Textures;
 import com.danielschon.flarkolian.Vec2;
 
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import static android.opengl.GLES20.*;
@@ -28,6 +29,7 @@ public abstract class Sprite extends Entity
 	public int depth = 0;	//Sprites with a lesser depth are drawn first and thus behind others
 	public SubTexture st;
 	public SubTexture[] stSequence;
+	public boolean centered = false;
 	
     //Some buffers
 	private FloatBuffer vertexBuffer;
@@ -61,6 +63,8 @@ public abstract class Sprite extends Entity
         1.0f, -1.0f, //bottom-right
         1.0f, 0.0f  //top-right
     };
+    
+    float[] rotationMatrix = new float[16];
     
     private short drawOrder[] = { 0, 1, 2, 0, 2, 3 }; // order to draw vertices
     
@@ -149,19 +153,19 @@ public abstract class Sprite extends Entity
 
   			// Enable generic vertex attribute array
   			glEnableVertexAttribArray(texCoordLoc);
-  		
+
   			// get handle to shape's transformation matrix
   			int mvpMatrixHandle = glGetUniformLocation(Game.program, "uMVPMatrix");
-
+  			
 	    	// Pass the projection and view transformation to the shader
 	    	glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
-	    
+	    	
 	    	// Get handle to textures locations
         	int samplerLoc = glGetUniformLocation (Game.program, "s_texture" );
 	    
         	//Set the sampler texture unit to the id of our desired texture
         	glUniform1i(samplerLoc, st.sheet);
-        
+        	
         	// Draw the square
 	    	glDrawElements(GL_TRIANGLES, drawOrder.length, GL_UNSIGNED_SHORT, drawListBuffer);
 
@@ -177,8 +181,10 @@ public abstract class Sprite extends Entity
 	public void refresh()
     {
 		//set texCoords
-		float isize = 1f / Textures.sheetsizes[st.sheet];	//The size (from 0f to 1f) of each image
-		float padding = isize / 64f;	//1 pixel off each size to avoid graphical errors
+		float isize = 1f / Textures.sheetSizes[st.sheet];	//The size (from 0f to 1f) of each image
+		float padding = 0;
+		if (Textures.isPadded[st.sheet])
+			padding = isize / 64f;	//1 pixel off each side to avoid graphical errors
     	uvs = new float[] 
     		    {
     		    	st.x * isize + padding, -(st.y * isize + padding),	//top-left
@@ -190,13 +196,23 @@ public abstract class Sprite extends Entity
     	uvBuffer.put(uvs);
     	uvBuffer.position(0);
 		
-		vertexCoords = new float[]
+		vertexCoords = 
+				!centered?//non-centered
+				new float[]		
 			    {   	// in counterclockwise order:
 			            loc.x, loc.y, 0.0f, 		// top-left
 			            loc.x, loc.y + size.y, 0.0f, 		// bottom-left
 			            loc.x + size.x, loc.y + size.y, 0.0f, 		// bottom-right
 			            loc.x + size.x, loc.y, 0.0f 			// top-right
-			    };
+			    }
+				://centered
+				new float[]		
+				{   	// in counterclockwise order:
+		            loc.x - size.x/2, loc.y - size.y/2, 0.0f, 		// top-left
+		            loc.x - size.x/2, loc.y + size.y/2, 0.0f, 		// bottom-left
+		            loc.x + size.x/2, loc.y + size.y/2, 0.0f, 		// bottom-right
+		            loc.x + size.x/2, loc.y - size.y/2, 0.0f 			// top-right
+				};
 		
         vertexBuffer.put(vertexCoords);
         vertexBuffer.position(0);
