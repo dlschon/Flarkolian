@@ -20,7 +20,7 @@ public class MySurfaceView extends GLSurfaceView implements SurfaceHolder.Callba
 	@Override
 	public boolean onTouchEvent(MotionEvent e) 
 	{
-		renderer.processTouchEvent(e);
+		Input.processTouchEvent(e);
 		return true;
 	}
 	

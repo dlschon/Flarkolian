@@ -2,6 +2,8 @@ package com.danielschon.flarkolian.sprite;
 
 import com.danielschon.flarkolian.Entity;
 import com.danielschon.flarkolian.Game;
+import com.danielschon.flarkolian.Input;
+import com.danielschon.flarkolian.Sound;
 import com.danielschon.flarkolian.SubTexture;
 import com.danielschon.flarkolian.Vec2;
 import com.danielschon.flarkolian.group.TitleGroup;
@@ -10,7 +12,7 @@ public class Title extends Sprite
 {
 	TitleGroup group;
 	int intro = -1;
-	
+
 	public Title(TitleGroup group, Vec2 position) 
 	{
 		super(position);
@@ -25,8 +27,9 @@ public class Title extends Sprite
 	public void update()
 	{
 		//If the screen was tapped and it wasn't on the gear thingy
-		if (Game.pressState == true && !(Game.press.getX() > Game.widthWindow - 256) && !(Game.press.getY() < 256) && intro == -1)
+		if (Input.testRegion(Game.fieldRect) && !Input.testRegion(group.gear.absColRect) && intro == -1)
 		{
+			Sound.play(Sound.ID_CONFIRM);
 			intro = 0;
 		}
 		

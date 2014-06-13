@@ -10,6 +10,7 @@ import com.danielschon.flarkolian.sprite.Title;
 public class TitleGroup extends Group 
 {
 	TitleCallback tcb;
+	public Gear gear;
 	
 	public TitleGroup(Game game, TitleCallback tcb)
 	{
@@ -21,10 +22,9 @@ public class TitleGroup extends Group
 	public void initContents()
 	{
 		this.add(new Title(this, new Vec2(0, Game.heightWindow - Game.widthActual/4)));
-		this.add(new Gear(new Vec2(Game.widthWindow-256, 0)));
+		gear = new Gear(new Vec2(Game.widthWindow-256, 0));
+		this.add(gear);
 		this.add(new BlinkyDrawString(new Vec2(0,0), new Vec2(128,128), "TAP TO START"));
-		
-		
 	}
 
 	public void begin() 

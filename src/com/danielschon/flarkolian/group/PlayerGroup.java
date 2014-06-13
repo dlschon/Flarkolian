@@ -7,6 +7,7 @@ import com.danielschon.flarkolian.Vec2;
 import com.danielschon.flarkolian.sprite.ExhaustParticle;
 import com.danielschon.flarkolian.sprite.Player;
 import com.danielschon.flarkolian.sprite.Star;
+import com.danielschon.flarkolian.sprite.enemy.Enemy14;
 
 public class PlayerGroup extends Group 
 {

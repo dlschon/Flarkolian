@@ -6,7 +6,7 @@ import com.danielschon.flarkolian.Vec2;
 public class DrawChar extends Sprite 
 {
 
-	public DrawChar(Vec2 position, char text, Vec2 size) 
+	public DrawChar(Vec2 position, Vec2 size, char text) 
 	{
 		super(position);
 		this.st = getSubTexture(text);

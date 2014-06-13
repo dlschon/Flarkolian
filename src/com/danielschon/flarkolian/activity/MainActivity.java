@@ -24,6 +24,7 @@ public class MainActivity extends Activity {
 	protected void onPause()
 	{
 		this.paused = true;
+		Log.i("fdas", "Game paused");
 		super.onPause();
 	}
 	
@@ -31,19 +32,19 @@ public class MainActivity extends Activity {
 	protected void onResume()
 	{
 		this.paused = false;
+		Log.i("fdas", "Game resume");
 		super.onResume();
 	}
 	
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) 
+	protected void onStop()
 	{
-		Log.d("Key down", String.valueOf(keyCode));
-		return true;
+		Log.i("fdas", "Game stopped");
+		super.onStop();
 	}
 	
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event)
+	protected void onStart()
 	{
-		return true;
+		Log.i("fdas", "Game started");
+		super.onStart();
 	}
 }

@@ -1,21 +1,33 @@
 package com.danielschon.flarkolian.sprite;
 
+import static android.opengl.GLES20.GL_FLOAT;
+import static android.opengl.GLES20.GL_TRIANGLES;
+import static android.opengl.GLES20.GL_UNSIGNED_SHORT;
+import static android.opengl.GLES20.glDisableVertexAttribArray;
+import static android.opengl.GLES20.glDrawElements;
+import static android.opengl.GLES20.glEnableVertexAttribArray;
+import static android.opengl.GLES20.glGetAttribLocation;
+import static android.opengl.GLES20.glGetUniformLocation;
+import static android.opengl.GLES20.glUniform1i;
+import static android.opengl.GLES20.glUniformMatrix4fv;
+import static android.opengl.GLES20.glVertexAttribPointer;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.opengl.GLES20;
+import android.util.Log;
+
 import com.danielschon.flarkolian.Entity;
 import com.danielschon.flarkolian.Game;
+import com.danielschon.flarkolian.Rectangle;
 import com.danielschon.flarkolian.SubTexture;
 import com.danielschon.flarkolian.Textures;
 import com.danielschon.flarkolian.Vec2;
-
-import android.opengl.GLES20;
-import android.opengl.Matrix;
-import android.util.Log;
-
-import static android.opengl.GLES20.*;
 
 /**
  * An entity that can be drawn. Holds information for location, size, and texture
@@ -45,6 +57,15 @@ public abstract class Sprite extends Entity
 	//Other info
 	public boolean visible = true;
 	
+	/**
+	 * Collision rectangle that has been translated to the Sprites location
+	 */
+	public Rectangle absColRect = new Rectangle();
+	/**
+	 * Collision rectangle that has not bee translated
+	 */
+	public Rectangle relColRect = new Rectangle();
+	
     //number of coordinates per vertex in this array
     static final int COORDS_PER_VERTEX = 3;
     float vertexCoords[] = 
@@ -67,8 +88,7 @@ public abstract class Sprite extends Entity
     float[] rotationMatrix = new float[16];
     
     private short drawOrder[] = { 0, 1, 2, 0, 2, 3 }; // order to draw vertices
-    
-    
+
     int vertexCount = vertexCoords.length/COORDS_PER_VERTEX; //Vertex count is the array divided by the size of the vertex ex. (x,y) or (x,y,z) 
     int vertexStride = COORDS_PER_VERTEX * 4;                //4 are how many bytes in a float
     
@@ -81,6 +101,9 @@ public abstract class Sprite extends Entity
     {
     	this.loc = position;
         
+    	if (relColRect == null)
+    		relColRect = new Rectangle(new Vec2(0,0), this.size);
+    	
         // initialize byte buffer for the draw list
         ByteBuffer dlb = ByteBuffer.allocateDirect(
         // (# of coordinate values * 2 bytes per short)
@@ -104,6 +127,7 @@ public abstract class Sprite extends Entity
 	@Override
 	public void update() 
 	{
+		//Do animations
 		if (isAnimated)
 		{
 			if (stSequence == null)
@@ -125,6 +149,7 @@ public abstract class Sprite extends Entity
 				}
 			}
 		}
+		
 		refresh();
 	}
 
@@ -142,6 +167,7 @@ public abstract class Sprite extends Entity
 	    	glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
 	                                 GL_FLOAT, false,
 	                                 vertexStride, vertexBuffer);
+	    	
 	    
         	// Get handle to texture coordinates location
         	int texCoordLoc = glGetAttribLocation(Game.program, "a_texCoord" );
@@ -151,6 +177,7 @@ public abstract class Sprite extends Entity
         		GL_FLOAT, false,
         		0, uvBuffer);
 
+        	
   			// Enable generic vertex attribute array
   			glEnableVertexAttribArray(texCoordLoc);
 
@@ -169,7 +196,7 @@ public abstract class Sprite extends Entity
         	// Draw the square
 	    	glDrawElements(GL_TRIANGLES, drawOrder.length, GL_UNSIGNED_SHORT, drawListBuffer);
 
-	    	// Disable vertex arrays
+	    	// Disable vertex attrib arrays
 	    	glDisableVertexAttribArray(mPositionHandle);
 	    	glDisableVertexAttribArray(texCoordLoc);
 		}
@@ -180,39 +207,40 @@ public abstract class Sprite extends Entity
 	 */
 	public void refresh()
     {
+		//Update abssolute collision rectangle
+		absColRect = relColRect.addVec2(this.loc);
+				
 		//set texCoords
 		float isize = 1f / Textures.sheetSizes[st.sheet];	//The size (from 0f to 1f) of each image
 		float padding = 0;
 		if (Textures.isPadded[st.sheet])
 			padding = isize / 64f;	//1 pixel off each side to avoid graphical errors
-    	uvs = new float[] 
-    		    {
-    		    	st.x * isize + padding, -(st.y * isize + padding),	//top-left
-    		    	st.x * isize + padding, -((st.y + 1) * isize - padding), //bottom-left
-    		    	(st.x + 1) * isize - padding, -((st.y + 1) * isize - padding), //bottom-right
-    		    	(st.x + 1) * isize - padding, -(st.y  * isize + padding) //top-right
-    		    };
+    	
+		//update the texcoord array
+    		    	uvs[0] = st.x * isize + padding; uvs[1] =  -(st.y * isize + padding);	//top-left
+    		    	uvs[2] = st.x * isize + padding; uvs[3] = -((st.y + 1) * isize - padding); //bottom-left
+    		    	uvs[4] = (st.x + 1) * isize - padding; uvs[5] = -((st.y + 1) * isize - padding); //bottom-right
+    		    	uvs[6] = (st.x + 1) * isize - padding; uvs[7] = -(st.y  * isize + padding); //top-right
+
     	
     	uvBuffer.put(uvs);
     	uvBuffer.position(0);
 		
-		vertexCoords = 
-				!centered?//non-centered
-				new float[]		
+		 //Update the vertexcoord array
+				if (!centered)//non-centered	
 			    {   	// in counterclockwise order:
-			            loc.x, loc.y, 0.0f, 		// top-left
-			            loc.x, loc.y + size.y, 0.0f, 		// bottom-left
-			            loc.x + size.x, loc.y + size.y, 0.0f, 		// bottom-right
-			            loc.x + size.x, loc.y, 0.0f 			// top-right
+					vertexCoords[0] = loc.x; vertexCoords[1] = loc.y; vertexCoords[2] = 0.0f; 		// top-left
+					vertexCoords[3] = loc.x; vertexCoords[4] = loc.y + size.y; vertexCoords[5] = 0.0f; 		// bottom-left
+					vertexCoords[6] = loc.x + size.x; vertexCoords[7] = loc.y + size.y; vertexCoords[8] = 0.0f; 		// bottom-right
+					vertexCoords[9] = loc.x + size.x; vertexCoords[10] = loc.y; vertexCoords[11] = 0.0f ;			// top-right
 			    }
-				://centered
-				new float[]		
+				else//centered	
 				{   	// in counterclockwise order:
-		            loc.x - size.x/2, loc.y - size.y/2, 0.0f, 		// top-left
-		            loc.x - size.x/2, loc.y + size.y/2, 0.0f, 		// bottom-left
-		            loc.x + size.x/2, loc.y + size.y/2, 0.0f, 		// bottom-right
-		            loc.x + size.x/2, loc.y - size.y/2, 0.0f 			// top-right
-				};
+					vertexCoords[0] = loc.x - size.x/2; vertexCoords[1] = loc.y - size.y/2; vertexCoords[2] = 0.0f; 		// top-left
+					vertexCoords[3] = loc.x - size.x/2; vertexCoords[4] = loc.y + size.y/2; vertexCoords[5] = 0.0f; 		// bottom-left
+					vertexCoords[6] = loc.x + size.x/2; vertexCoords[7] = loc.y + size.y/2; vertexCoords[8] = 0.0f; 		// bottom-right
+					vertexCoords[9] = loc.x + size.x/2; vertexCoords[10] = loc.y - size.y/2; vertexCoords[11] = 0.0f ;			// top-right
+				}
 		
         vertexBuffer.put(vertexCoords);
         vertexBuffer.position(0);

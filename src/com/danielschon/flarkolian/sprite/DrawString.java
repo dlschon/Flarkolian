@@ -70,7 +70,7 @@ public class DrawString extends Sprite
 			}
 			else
 			{
-				chars[index] = new DrawChar(new Vec2(this.loc.x + offset, this.loc.y), c, this.size);
+				chars[index] = new DrawChar(new Vec2(this.loc.x + offset, this.loc.y),  this.size, c);
 				index++;	//we use this variable to avoid problems with spaces
 				offset += this.size.x * getCharWidth(c) + padding * this.size.x;
 			}

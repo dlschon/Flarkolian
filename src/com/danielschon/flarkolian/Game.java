@@ -34,6 +34,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.danielschon.flarkolian.Settings.ctrlStyle;
 import com.danielschon.flarkolian.activity.MainActivity;
 import com.danielschon.flarkolian.group.InGameGUIGroup;
 import com.danielschon.flarkolian.group.PlayerGroup;
@@ -46,6 +47,9 @@ import com.danielschon.flarkolian.sprite.Sprite;
 
 public class Game implements GLSurfaceView.Renderer
 {
+	//Singleton instance
+	public static Game instance;	
+		
 
 	// some fancy shaders
 		public final static String vertexShaderCode =
@@ -61,18 +65,21 @@ public class Game implements GLSurfaceView.Renderer
 		public final static String fragmentShaderCode =
 			  "precision mediump float;" +
 			  "varying vec2 v_texCoord;" +
-			  "uniform vec4 vColor;" +
 			  "uniform sampler2D s_texture;" +
 			  "void main() {" +
-		      "  gl_FragColor = texture2D( s_texture, v_texCoord );" +
+			  "  gl_FragColor = texture2D( s_texture, v_texCoord );" +
 			  "}";
 
-	//Singleton instance
-	public static Game instance;	
 	
 	//OpenGL ES program
 	public static int program;
-	    
+	
+	public static enum GameState
+	{
+		TITLE,
+		INGAME
+	}
+	
 	//Dimensions of the actual screen
 	public static int widthActual = 1920;
 	public static int heightActual = 1080;
@@ -81,16 +88,10 @@ public class Game implements GLSurfaceView.Renderer
 	public static int widthWindow = 1920;
 	public static int heightWindow = 1080;
 	
-	//Whether or not the screen is currently being pressed
-	public static boolean pressState = false;
-	public static long pressTime;
-	public static long releaseTime;
-	public static MotionEvent press;
-	
 	private ArrayList<Sprite> sprites = new ArrayList<Sprite>();
 	private ArrayList<Entity> entities = new ArrayList<Entity>();
 	
-	private Player player;
+	public Player player;
 	
 	private float[] projectionMatrix = new float[16];
 	private float[] viewMatrix = new float[16];
@@ -113,15 +114,18 @@ public class Game implements GLSurfaceView.Renderer
 	InGameGUIGroup inGameGUIGroup;
 	PlayerGroup playerGroup;
 	
+	public static GameState gameState = GameState.TITLE;
+	
 	public Keypad keypad = null;
 	
-	public int[] starRange = {0,1920};
+	public static Rectangle fieldRect;
 	
 	public Game(Context context, GLSurfaceView sv)
 	{
 		super();
 		this.context = context;
 		instance = this;
+		fieldRect = new Rectangle(0, 0, Game.widthWindow, Game.heightWindow);
 	}
 
 	@Override
@@ -141,6 +145,7 @@ public class Game implements GLSurfaceView.Renderer
         glLinkProgram(program);   					// creates OpenGL ES program executables
         
         Textures.createTextures(context);
+        Sound.createSounds(context);
         
         //Alpha blending
         GLES20.glEnable(GLES20.GL_BLEND);
@@ -163,8 +168,7 @@ public class Game implements GLSurfaceView.Renderer
 			
 	    });
 	    titleGroup.deploy();
-	  
-	    starRange = new int[] {0, Game.widthWindow};
+
 	    starGroup = new StarGroup(this);
 	    starGroup.deploy();
         
@@ -177,14 +181,15 @@ public class Game implements GLSurfaceView.Renderer
 	{
 		titleGroup.destroy();
 		
+		fieldRect = Settings.getFieldRect();
+		gameState = GameState.INGAME;
+		
 		playerGroup = new PlayerGroup(this);
 		playerGroup.deploy();
 		
 		inGameGUIGroup = new InGameGUIGroup(this);
 		inGameGUIGroup.deploy();
-		
-		starRange = new int[] {0, (int) (Game.widthWindow * .75)};
-		
+
 		keypad = inGameGUIGroup.getKeypad();
 		player = playerGroup.getPlayer();
 	}
@@ -273,6 +278,9 @@ public class Game implements GLSurfaceView.Renderer
 			Game.widthWindow = (int) (ratio * 1080);
 			Game.heightWindow = 1080;
 			
+			if (gameState == GameState.TITLE)
+				fieldRect = new Rectangle(0, 0, widthActual, heightActual);
+			
 			glViewport(0, 0, Game.widthActual, Game.heightActual);
 
 			// this projection matrix is applied to object coordinates
@@ -324,25 +332,6 @@ public class Game implements GLSurfaceView.Renderer
 	private void depthSort() 
 	{
 		Collections.sort(sprites, new DepthComparator());
-	}
-	
-	/**
-	 * Handles touch events sent from MySurfaceView
-	 * @param e
-	 */
-	public void processTouchEvent(MotionEvent e) 
-	{
-		press = e;
-		if (e.getAction() == MotionEvent.ACTION_DOWN)
-		{
-			pressState = true;
-			pressTime = System.currentTimeMillis();
-		}
-		if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL)
-		{
-			pressState = false;
-			releaseTime = System.currentTimeMillis();
-		}
 	}
 	
 	/**
